@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 /**
  * Created by changmingxie on 11/9/15.
+ * 执行的上下文对象  实际上就是当前调用的哪个方法 且参数是什么
  */
 public class InvocationContext implements Serializable {
 

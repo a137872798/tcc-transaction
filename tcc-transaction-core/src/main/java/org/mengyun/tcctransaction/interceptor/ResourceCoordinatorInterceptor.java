@@ -18,6 +18,7 @@ import java.lang.reflect.Method;
 
 /**
  * Created by changmingxie on 11/8/15.
+ * 具备重试功能的拦截器对象
  */
 public class ResourceCoordinatorInterceptor {
 
@@ -48,8 +49,15 @@ public class ResourceCoordinatorInterceptor {
         return pjp.proceed(pjp.getArgs());
     }
 
+    /**
+     * 参与者 入队列
+     * @param pjp
+     * @throws IllegalAccessException
+     * @throws InstantiationException
+     */
     private void enlistParticipant(ProceedingJoinPoint pjp) throws IllegalAccessException, InstantiationException {
 
+        // 获取修饰的方法
         Method method = CompensableMethodUtils.getCompensableMethod(pjp);
         if (method == null) {
             throw new RuntimeException(String.format("join point not found method, point is : %s", pjp.getSignature().getName()));

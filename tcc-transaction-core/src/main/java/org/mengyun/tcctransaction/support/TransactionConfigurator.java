@@ -6,6 +6,7 @@ import org.mengyun.tcctransaction.recover.RecoverConfig;
 
 /**
  * Created by changming.xie on 2/24/17.
+ * 事务配置
  */
 public interface TransactionConfigurator {
 

@@ -10,6 +10,7 @@ import java.lang.reflect.Method;
 
 /**
  * Created by changmingxie on 10/30/15.
+ * 终结对象
  */
 public class Terminator implements Serializable {
 
@@ -20,6 +21,13 @@ public class Terminator implements Serializable {
 
     }
 
+    /**
+     * 执行 rollback 或者 commit 的实际对象
+     * @param transactionContext 包含本次事务id status 等信息
+     * @param invocationContext  包含应该调用的方法 和 入参
+     * @param transactionContextEditorClass  具备从参数中剥离出 TransactionContext 的能力
+     * @return
+     */
     public Object invoke(TransactionContext transactionContext, InvocationContext invocationContext, Class<? extends TransactionContextEditor> transactionContextEditorClass) {
 
 
@@ -27,12 +35,15 @@ public class Terminator implements Serializable {
 
             try {
 
+                // 单例工厂
                 Object target = FactoryBuilder.factoryOf(invocationContext.getTargetClass()).getInstance();
 
                 Method method = null;
 
+                // 执行 commit or rollback
                 method = target.getClass().getMethod(invocationContext.getMethodName(), invocationContext.getParameterTypes());
 
+                // 从外部将 context 对象设置进去
                 FactoryBuilder.factoryOf(transactionContextEditorClass).getInstance().set(transactionContext, target, method, invocationContext.getArgs());
 
                 return method.invoke(target, invocationContext.getArgs());

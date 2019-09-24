@@ -7,6 +7,7 @@ import org.aspectj.lang.annotation.Pointcut;
 
 /**
  * Created by changmingxie on 11/8/15.
+ * 同样处理 @Compensable 注解修饰的方法 好像是增加重试的逻辑
  */
 @Aspect
 public abstract class ResourceCoordinatorAspect {

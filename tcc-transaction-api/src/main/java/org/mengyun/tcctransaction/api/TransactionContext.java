@@ -6,10 +6,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by changmingxie on 10/30/15.
+ * 事务上下文对象
  */
 public class TransactionContext implements Serializable {
 
     private static final long serialVersionUID = -8199390103169700387L;
+
+    /**
+     * 标明事务id
+     */
     private TransactionXid xid;
 
     private int status;

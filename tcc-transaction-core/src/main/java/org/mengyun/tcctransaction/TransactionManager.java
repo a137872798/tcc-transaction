@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * Created by changmingxie on 10/26/15.
+ * 该对象作为事务相关对象的一个对外入口  用于管理他们之间的关系
  */
 public class TransactionManager {
 
@@ -19,6 +20,9 @@ public class TransactionManager {
 
     private TransactionRepository transactionRepository;
 
+    /**
+     * 这个队列好像是用来处理 嵌套事务的
+     */
     private static final ThreadLocal<Deque<Transaction>> CURRENT = new ThreadLocal<Deque<Transaction>>();
 
     private ExecutorService executorService;
@@ -71,18 +75,24 @@ public class TransactionManager {
         }
     }
 
+    /**
+     * 将当前线程维护的 deque 容器中 第一个事务取出来 并将内部维护的所有 参与者 Participant 全部提交
+     * @param asyncCommit 是否异步提交
+     */
     public void commit(boolean asyncCommit) {
 
         final Transaction transaction = getCurrentTransaction();
 
         transaction.changeStatus(TransactionStatus.CONFIRMING);
 
+        // 更新事务状态
         transactionRepository.update(transaction);
 
         if (asyncCommit) {
             try {
                 Long statTime = System.currentTimeMillis();
 
+                // 使用线程池进行提交
                 executorService.submit(new Runnable() {
                     @Override
                     public void run() {
@@ -95,11 +105,16 @@ public class TransactionManager {
                 throw new ConfirmingException(commitException);
             }
         } else {
+            // 同步提交
             commitTransaction(transaction);
         }
     }
 
 
+    /**
+     * 回滚
+     * @param asyncRollback
+     */
     public void rollback(boolean asyncRollback) {
 
         final Transaction transaction = getCurrentTransaction();
@@ -127,6 +142,10 @@ public class TransactionManager {
     }
 
 
+    /**
+     * 同步提交事务
+     * @param transaction
+     */
     private void commitTransaction(Transaction transaction) {
         try {
             transaction.commit();
@@ -160,6 +179,7 @@ public class TransactionManager {
     }
 
 
+
     private void registerTransaction(Transaction transaction) {
 
         if (CURRENT.get() == null) {
@@ -174,6 +194,7 @@ public class TransactionManager {
             Transaction currentTransaction = getCurrentTransaction();
             if (currentTransaction == transaction) {
                 CURRENT.get().pop();
+                // 通过主动删除的方式 避免内存泄漏  ThreadLocal 会出现内存泄漏
                 if (CURRENT.get().size() == 0) {
                     CURRENT.remove();
                 }
@@ -183,6 +204,10 @@ public class TransactionManager {
         }
     }
 
+    /**
+     * 将参与者添加当当前事务中 并更新事务信息
+     * @param participant
+     */
     public void enlistParticipant(Participant participant) {
         Transaction transaction = this.getCurrentTransaction();
         transaction.enlistParticipant(participant);

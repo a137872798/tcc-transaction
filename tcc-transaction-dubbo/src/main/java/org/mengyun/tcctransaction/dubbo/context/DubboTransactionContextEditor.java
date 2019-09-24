@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 
 /**
  * Created by changming.xie on 1/19/17.
+ * 代表在 dubbo 中 利用 RpcContext 进行数据传递  默认的 TransactionContextEditor 是在方法参数中本身就携带了 TransactionContext类型的参数
  */
 public class DubboTransactionContextEditor implements TransactionContextEditor {
     @Override

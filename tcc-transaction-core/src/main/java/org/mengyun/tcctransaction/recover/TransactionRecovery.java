@@ -16,6 +16,7 @@ import java.util.List;
 
 /**
  * Created by changmingxie on 11/10/15.
+ * 事务恢复管理
  */
 public class TransactionRecovery {
 

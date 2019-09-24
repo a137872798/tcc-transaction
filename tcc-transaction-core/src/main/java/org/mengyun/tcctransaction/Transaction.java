@@ -89,6 +89,9 @@ public class Transaction implements Serializable {
     }
 
 
+    /**
+     * 将下面维护的所有参与者一并提交
+     */
     public void commit() {
 
         for (Participant participant : participants) {
@@ -96,6 +99,9 @@ public class Transaction implements Serializable {
         }
     }
 
+    /**
+     * 将所有参与者进行回滚
+     */
     public void rollback() {
         for (Participant participant : participants) {
             participant.rollback();
